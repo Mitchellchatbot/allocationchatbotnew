@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <!-- Placeholder logo — replace with official Allocation Assist logo -->
+  <rect width="200" height="200" rx="32" fill="hsl(142,70%,40%)"/>
+  <text x="100" y="125" font-family="Inter, system-ui, sans-serif" font-weight="800" font-size="88" fill="white" text-anchor="middle">AA</text>
+</svg>
