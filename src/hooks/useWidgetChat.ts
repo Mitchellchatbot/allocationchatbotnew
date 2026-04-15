@@ -439,7 +439,7 @@ export const useWidgetChat = ({ propertyId, greeting, isPreview = false }: Widge
   const [isEscalated, setIsEscalated] = useState(false); // Escalation triggered (conversation visible to agents)
   const [humanHasTakenOver, setHumanHasTakenOver] = useState(false); // Human agent has actually responded
   const [requiresLeadCapture, setRequiresLeadCapture] = useState(false);
-  const [visitorInfo, setVisitorInfo] = useState<{ name?: string; email?: string }>({});
+  const [visitorInfo, setVisitorInfo] = useState<{ name?: string; email?: string; phone?: string; specialty?: string; countryOfTraining?: string; age?: string }>({});
   const [showProactiveMessage, setShowProactiveMessage] = useState(false);
   const [aiAgents, setAiAgents] = useState<AIAgent[]>([]);
   const [currentAiAgent, setCurrentAiAgent] = useState<AIAgent | null>(null);
@@ -1084,17 +1084,21 @@ export const useWidgetChat = ({ propertyId, greeting, isPreview = false }: Widge
   }, [propertyId, greeting, isPreview, ensureWidgetIds]);
 
   // Submit lead info
-  const submitLeadInfo = async (name?: string, email?: string) => {
-    setVisitorInfo({ name, email });
+  const submitLeadInfo = async (name?: string, email?: string, extra?: { phone?: string; specialty?: string; countryOfTraining?: string; age?: string }) => {
+    setVisitorInfo({ name, email, ...extra });
     setRequiresLeadCapture(false);
 
     // Use ref to get the most current visitor ID (state may be stale in preview mode)
     const currentVisitorId = visitorIdRef.current || visitorId;
-    if (currentVisitorId && (name || email)) {
+    if (currentVisitorId) {
       const sessionId = getOrCreateSessionId();
-      await updateVisitorSecure(currentVisitorId, sessionId, { 
-        name: name || null, 
-        email: email || null 
+      await updateVisitorSecure(currentVisitorId, sessionId, {
+        name: name || null,
+        email: email || null,
+        phone: extra?.phone || null,
+        occupation: extra?.specialty || null,
+        treatment_interest: extra?.countryOfTraining || null,
+        age: extra?.age || null,
       });
     }
   };

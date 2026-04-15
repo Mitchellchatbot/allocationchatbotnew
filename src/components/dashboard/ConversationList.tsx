@@ -7,7 +7,18 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Globe, Clock, User, FlaskConical, Trash2, MessageSquare, X, Archive, CheckSquare, Zap, AlertCircle } from 'lucide-react';
+import { Globe, Clock, User, FlaskConical, Trash2, MessageSquare, X, Archive, CheckSquare, Zap, AlertCircle, CheckCircle2, XCircle } from 'lucide-react';
+
+const QUALIFYING_COUNTRIES = ['europe', 'uk', 'united kingdom', 'usa', 'united states', 'canada', 'south africa', 'australia', 'new zealand', 'south america'];
+
+const getLeadQualification = (visitor: { treatment_interest?: string | null; age?: string | null }): 'qualified' | 'unqualified' | null => {
+  const country = visitor.treatment_interest;
+  if (!country) return null; // pre-chat form not submitted yet
+  const age = parseInt(visitor.age || '0', 10);
+  const inCountry = QUALIFYING_COUNTRIES.some(c => country.toLowerCase().includes(c));
+  const inAge = age >= 30 && age <= 60;
+  return inCountry && inAge ? 'qualified' : 'unqualified';
+};
 
 // Countdown badge: shows how many seconds the agent has left before AI takes over.
 // Uses the same source of truth as the ChatPanel: aiQueuedAt + aiQueuedWindowMs.
@@ -120,6 +131,7 @@ const ConversationItem = ({
 }: ConversationItemProps) => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const { visitor, lastMessage, unreadCount, status, propertyName } = conversation;
+  const qualification = getLeadQualification(visitor);
   const isTest = (conversation as any).isTest;
   const visitorName = visitor.name || (isTest ? 'Test Visitor' : `Visitor ${visitor.sessionId.slice(-4)}`);
   const initials = visitorName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
@@ -275,6 +287,18 @@ const ConversationItem = ({
               <Badge variant="outline" className="text-amber-600 border-amber-400/30 bg-amber-500/10 text-xs py-0 w-fit">
                 <AlertCircle className="h-3 w-3 mr-1" />
                 No Reply Sent
+              </Badge>
+            )}
+            {qualification === 'qualified' && (
+              <Badge variant="outline" className="text-green-600 border-green-500/30 bg-green-500/10 text-xs py-0 w-fit">
+                <CheckCircle2 className="h-3 w-3 mr-1" />
+                Qualified
+              </Badge>
+            )}
+            {qualification === 'unqualified' && (
+              <Badge variant="outline" className="text-red-600 border-red-500/30 bg-red-500/10 text-xs py-0 w-fit">
+                <XCircle className="h-3 w-3 mr-1" />
+                Unqualified
               </Badge>
             )}
           </div>

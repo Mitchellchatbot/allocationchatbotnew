@@ -260,7 +260,7 @@ export const DashboardSidebar = ({
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent side="right">
-                      {isAgentMode ? 'Switch to Admin' : 'Switch to Agent'}
+                      {isAgentMode ? 'Switch to Admin' : 'Switch to Advisor'}
                     </TooltipContent>
                   </Tooltip>
                 ) : (
@@ -278,7 +278,7 @@ export const DashboardSidebar = ({
                     ) : (
                       <>
                         <Inbox className="h-3.5 w-3.5" />
-                        Switch to Agent View
+                        Switch to Advisor View
                       </>
                     )}
                   </Button>

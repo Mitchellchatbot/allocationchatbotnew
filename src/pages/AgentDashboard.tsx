@@ -548,7 +548,7 @@ export default function AgentDashboard() {
                   </div>
                 ) : (
                   <div className="flex items-center gap-1 group">
-                    <p className="font-medium text-sm">{agentProfile?.name || 'Agent'}</p>
+                    <p className="font-medium text-sm">{agentProfile?.name || 'Advisor'}</p>
                     <Button
                       size="icon"
                       variant="ghost"

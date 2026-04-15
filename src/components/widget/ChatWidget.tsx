@@ -81,6 +81,10 @@ export const ChatWidget = ({
   const [inputValue, setInputValue] = useState('');
   const [leadName, setLeadName] = useState('');
   const [leadEmail, setLeadEmail] = useState('');
+  const [leadPhone, setLeadPhone] = useState('');
+  const [leadSpecialty, setLeadSpecialty] = useState('');
+  const [leadCountry, setLeadCountry] = useState('');
+  const [leadAge, setLeadAge] = useState('');
   const [uploadingImage, setUploadingImage] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
@@ -393,15 +397,17 @@ export const ChatWidget = ({
 
   const handleLeadSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const name = settings.require_name_before_chat ? leadName.trim() : undefined;
-    const email = settings.require_email_before_chat ? leadEmail.trim() : undefined;
-    
-    // Basic validation
-    if (settings.require_name_before_chat && !name) return;
-    if (settings.require_email_before_chat && !email) return;
-    if (email && !email.includes('@')) return;
+    const name = leadName.trim();
+    const email = leadEmail.trim();
+    const phone = leadPhone.trim();
+    const specialty = leadSpecialty.trim();
+    const country = leadCountry.trim();
+    const age = leadAge.trim();
 
-    submitLeadInfo(name, email);
+    if (!name || !specialty || !country || !phone || !email || !age) return;
+    if (!email.includes('@')) return;
+
+    submitLeadInfo(name, email, { phone, specialty, countryOfTraining: country, age });
   };
 
   // Dynamic border radius styles
@@ -495,8 +501,8 @@ export const ChatWidget = ({
     '--widget-message-radius-sm': messageRadiusSmall,
   } as React.CSSProperties;
 
-  // Show lead capture form
-  const showLeadForm = requiresLeadCapture && !visitorInfo.name && !visitorInfo.email;
+  // Show lead capture form — always show until visitor has submitted their details
+  const showLeadForm = !visitorInfo.name;
 
   // Don't render until bootstrap completes — prevents flash of default name/avatar
   if (loading && !isPreview) return null;
@@ -572,7 +578,7 @@ export const ChatWidget = ({
           {/* Welcome Message */}
           <div className="px-5 py-3 bg-gradient-to-r from-accent/30 to-muted/30 border-b border-border/30">
             <p className="text-xs text-muted-foreground text-center">
-              🔒 100% Private & Confidential. Take your time. 💚
+              🔒 Your information is kept private and confidential.
             </p>
           </div>
 
@@ -591,50 +597,100 @@ export const ChatWidget = ({
               </p>
             </div>
           ) : showLeadForm ? (
-            <div className="flex-1 flex flex-col items-center justify-center p-6 bg-gradient-to-b from-background to-muted/20">
-              <div 
-                className="h-16 w-16 flex items-center justify-center mb-4"
-                style={{ background: 'var(--widget-primary)', borderRadius: buttonRadius }}
-              >
-                <MessageCircle className="h-8 w-8 text-white" />
+            <div className="flex-1 overflow-y-auto p-5 bg-gradient-to-b from-background to-muted/20">
+              <div className="flex flex-col items-center mb-4">
+                <div
+                  className="h-12 w-12 flex items-center justify-center mb-3"
+                  style={{ background: 'var(--widget-primary)', borderRadius: buttonRadius }}
+                >
+                  <MessageCircle className="h-6 w-6 text-white" />
+                </div>
+                <h3 className="text-base font-semibold text-foreground mb-1">Before we chat</h3>
+                <p className="text-xs text-muted-foreground text-center">
+                  Please share a few details so we can assist you.
+                </p>
               </div>
-              <h3 className="text-lg font-semibold text-foreground mb-2">Before we chat</h3>
-              <p className="text-sm text-muted-foreground text-center mb-6">
-                Please share a few details so we can better assist you.
-              </p>
-              <form onSubmit={handleLeadSubmit} className="w-full space-y-4">
-                {settings.require_name_before_chat && (
-                  <div className="relative">
-                    <User className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <input
-                      type="text"
-                      value={leadName}
-                      onChange={(e) => setLeadName(e.target.value)}
-                      placeholder="Your name"
-                      required
-                      className="w-full pl-11 pr-4 py-3 border border-border/50 bg-background/80 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all duration-300 placeholder:text-muted-foreground/60"
-                      style={{ borderRadius: `${Math.min(borderRadius, 16)}px` }}
-                    />
-                  </div>
-                )}
-                {settings.require_email_before_chat && (
-                  <div className="relative">
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <input
-                      type="email"
-                      value={leadEmail}
-                      onChange={(e) => setLeadEmail(e.target.value)}
-                      placeholder="Your email"
-                      required
-                      className="w-full pl-11 pr-4 py-3 border border-border/50 bg-background/80 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all duration-300 placeholder:text-muted-foreground/60"
-                      style={{ borderRadius: `${Math.min(borderRadius, 16)}px` }}
-                    />
-                  </div>
-                )}
+              <form onSubmit={handleLeadSubmit} className="w-full space-y-3">
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                  <input
+                    type="text"
+                    value={leadName}
+                    onChange={(e) => setLeadName(e.target.value)}
+                    placeholder="Full name *"
+                    required
+                    className="w-full pl-9 pr-3 py-2.5 border border-border/50 bg-background/80 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all duration-300 placeholder:text-muted-foreground/60"
+                    style={{ borderRadius: `${Math.min(borderRadius, 12)}px` }}
+                  />
+                </div>
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={leadSpecialty}
+                    onChange={(e) => setLeadSpecialty(e.target.value)}
+                    placeholder="Medical specialty *"
+                    required
+                    className="w-full px-3 py-2.5 border border-border/50 bg-background/80 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all duration-300 placeholder:text-muted-foreground/60"
+                    style={{ borderRadius: `${Math.min(borderRadius, 12)}px` }}
+                  />
+                </div>
+                <select
+                  value={leadCountry}
+                  onChange={(e) => setLeadCountry(e.target.value)}
+                  required
+                  className="w-full px-3 py-2.5 border border-border/50 bg-background/80 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all duration-300 text-muted-foreground"
+                  style={{ borderRadius: `${Math.min(borderRadius, 12)}px`, color: leadCountry ? 'inherit' : undefined }}
+                >
+                  <option value="" disabled>Country of training *</option>
+                  <option value="Europe">Europe</option>
+                  <option value="UK">UK</option>
+                  <option value="USA">USA</option>
+                  <option value="Canada">Canada</option>
+                  <option value="South Africa">South Africa</option>
+                  <option value="Australia">Australia</option>
+                  <option value="New Zealand">New Zealand</option>
+                  <option value="South America">South America</option>
+                </select>
+                <div className="relative">
+                  <input
+                    type="tel"
+                    value={leadPhone}
+                    onChange={(e) => setLeadPhone(e.target.value)}
+                    placeholder="Phone number *"
+                    required
+                    className="w-full px-3 py-2.5 border border-border/50 bg-background/80 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all duration-300 placeholder:text-muted-foreground/60"
+                    style={{ borderRadius: `${Math.min(borderRadius, 12)}px` }}
+                  />
+                </div>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                  <input
+                    type="email"
+                    value={leadEmail}
+                    onChange={(e) => setLeadEmail(e.target.value)}
+                    placeholder="Email address *"
+                    required
+                    className="w-full pl-9 pr-3 py-2.5 border border-border/50 bg-background/80 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all duration-300 placeholder:text-muted-foreground/60"
+                    style={{ borderRadius: `${Math.min(borderRadius, 12)}px` }}
+                  />
+                </div>
+                <div className="relative">
+                  <input
+                    type="number"
+                    value={leadAge}
+                    onChange={(e) => setLeadAge(e.target.value)}
+                    placeholder="Age *"
+                    min="18"
+                    max="99"
+                    required
+                    className="w-full px-3 py-2.5 border border-border/50 bg-background/80 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all duration-300 placeholder:text-muted-foreground/60"
+                    style={{ borderRadius: `${Math.min(borderRadius, 12)}px` }}
+                  />
+                </div>
                 <button
                   type="submit"
-                  className="w-full py-3 text-white font-medium text-sm transition-all duration-300 hover:opacity-90"
-                  style={{ background: 'var(--widget-primary)', borderRadius: `${Math.min(borderRadius, 16)}px` }}
+                  className="w-full py-2.5 text-white font-medium text-sm transition-all duration-300 hover:opacity-90"
+                  style={{ background: 'var(--widget-primary)', borderRadius: `${Math.min(borderRadius, 12)}px` }}
                 >
                   Start Chat
                 </button>
